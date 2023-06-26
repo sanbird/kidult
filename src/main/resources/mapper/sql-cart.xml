@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.mapper.CartMapper">
+
+	<!-- userIdx 카트 상품 목록 -->
+	<select id="selectCartList" parameterType="int" resultType="project.dto.CartDto">
+		select cart_idx, cart_price, cart_count, cart_date, cart_deleted,
+			   c.user_idx, u.cash, u.mileage,  
+			   c.shop_idx, s.shop_name, s.shop_price, s.shop_image		 
+		  from t_cart c, t_user u, t_shop s
+		 where c.user_idx = u.user_idx
+		   and c.shop_idx = s.shop_idx
+		   and cart_deleted = 'N'
+		   and c.user_idx = #{userIdx}		
+	  order by cart_idx desc;
+	</select>		 
+	
+	<!-- 카트 결제 -->
+	<update id="updateCart" parameterType="project.dto.CartDto">
+		 update t_cart
+			set cart_deleted    	= 'Y'
+			where user_idx = #{userIdx}
+	</update>
+	
+	
+	
+	<!-- 카트 등록 -->
+	<insert id="registCart" parameterType="project.dto.CartDto">
+		insert into t_cart (cart_price, cart_count, cart_date, user_idx, shop_idx)
+		values (#{cartPrice}, #{cartCount}, now(), #{userIdx}, #{shopIdx})
+	</insert>
+	
+	<!-- 카트 삭제 -->	
+	<delete id="deleteCart" parameterType="project.dto.CartDto">
+		delete from t_cart
+		      where cart_idx = #{cartIdx} 
+	</delete>
+	
+	<!-- 결제 등록 -->
+	<insert id="registPayment" parameterType="project.dto.CartDto">
+		insert into t_payment (payment_price, payment_name, payment_phone, payment_address, payment_date, user_idx)
+		values (#{paymentPrice}, #{paymentName}, #{paymentPhone}, #{paymentAddress}, now(), #{userIdx})
+	</insert>
+	
+	<!-- 캐시 변경 -->
+	<update id="updateCash" parameterType="project.dto.CartDto">
+		 update t_user
+			set cash	 = #{cash}
+		  where user_idx = #{userIdx}
+	</update>
+	
+	<!-- 결제 내역 -->
+	<select id="selectPaymentList" parameterType="int" resultType="project.dto.CartDto">
+		select payment_idx, payment_price, p.user_idx, payment_name, payment_phone, payment_address, payment_date
+		  from t_payment p, t_user u
+		 where p.user_idx = u.user_idx
+		   and p.user_idx = #{userIdx}
+		 order by payment_idx desc;
+	</select>
+	
+	<!-- 쿠폰 등록 -->
+	<insert id="registCoupon" parameterType="project.dto.CartDto" useGeneratedKeys="true" keyProperty="couponIdx">
+		insert into t_coupon (coupon_name, coupon_value)
+		values (#{couponName}, #{couponValue})
+	</insert>
+	
+	<!-- 쿠폰 조회 -->
+	<select id="selectCouponList" parameterType="int" resultType="project.dto.CartDto">
+		select coupon_idx, coupon_name, coupon_value
+		  from t_coupon
+	  order by coupon_idx desc;
+	</select>
+	
+	<!-- 쿠폰 지급 -->
+	<insert id="giveCoupon" parameterType="project.dto.CartDto">
+		insert into t_user_coupon (coupon_idx, user_idx)
+		     values (#{couponIdx}, #{userIdx})
+	</insert>
+	
+	<!-- 유저 쿠폰 조회 -->
+	<select id="selectCouponListByUserIdx" parameterType="int" resultType="project.dto.CartDto">
+		select uc_idx, uc.coupon_idx, uc.uc_deleted, c.coupon_name, c.coupon_value, uc.user_idx
+		  from t_user_coupon uc, t_coupon c, t_user u
+		 where uc.coupon_idx = c.coupon_idx
+		   and uc.user_idx = u.user_idx
+		   and uc.uc_deleted = 'N'
+		   and uc.user_idx = #{userIdx}
+	  order by uc_idx desc;
+	</select>
+	
+	
+	<!-- 쿠폰 사용 -->
+	<update id="useCoupon" parameterType="project.dto.CartDto">
+		update t_user_coupon
+		   set uc_deleted = 'Y'
+		 where uc_idx = #{uc_idx}
+	</update>
+	
+	
+	<!-- 마일리지 적립 사용 -->
+	<update id="updateMileage" parameterType="project.dto.CartDto">
+		update t_user
+		   set mileage = #{mileage}
+		 where user_idx = #{userIdx}
+	</update>
+	
+	<!-- 마일리지 사용 -->
+	<update id="useMileage" parameterType="project.dto.CartDto">
+		update t_user
+		   set mileage = #{mileage}
+		 where user_idx = #{userIdx}
+	</update>
+	
+		
+</mapper>

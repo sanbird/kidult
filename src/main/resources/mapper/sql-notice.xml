@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.mapper.NoticeMapper">
+	
+<!-- 공지글목록 -->	
+	<select id="selectNoticeList" resultType="project.dto.NoticeDto">
+		select 
+			notice_idx, notice_title, notice_created_id, notice_hit_cnt,
+		       date_format(notice_created_dt, '%Y-%m-%d') as notice_created_dt
+		  from t_notice
+		 where notice_deleted_yn = 'N'
+	     order by notice_idx desc
+	</select> 
+	
+	
+<!-- 공지글 작성 -->
+	<insert id="insertNotice" parameterType="project.dto.NoticeDto">
+		insert into t_notice
+			(notice_title, notice_contents, notice_created_dt, notice_created_id)
+		values ( #{noticeTitle}, #{noticeContents}, now(), 'admin' )
+	</insert>
+	
+<!-- 상세정보조회 -->
+	<update id="updateHitCount" parameterType="int">
+		update t_notice 
+		   set notice_hit_cnt = notice_hit_cnt + 1
+		 where notice_idx = #{noticeIdx}
+	</update>
+	
+	<select id="selectNoticeDetail" parameterType="int" resultType="project.dto.NoticeDto">
+		select notice_idx, notice_title, notice_contents, notice_hit_cnt,
+		       date_format(notice_created_dt, '%Y-%m-%d') as notice_created_dt,
+		       notice_created_id
+		  from t_notice
+		 where notice_deleted_yn = 'N' and notice_idx = #{noticeIdx}		       
+	</select>
+	
+<!-- 수정, 삭제 기능 -->
+	<update id="updateNotice" parameterType="project.dto.NoticeDto">
+		update t_notice
+		   set notice_title = #{noticeTitle}, 
+		       notice_contents = #{noticeContents}, 
+		       notice_updated_dt = now(), 
+		       notice_created_id = 'admin'
+		 where notice_idx = #{noticeIdx} 		 
+	</update>
+	
+	<delete id="deleteNotice" parameterType="int">
+		update t_notice
+		   set notice_deleted_yn = 'Y', 
+		       notice_updated_dt = now(), 
+		       notice_created_id = 'admin'
+		 where notice_idx = #{noticeIdx} 		 
+	</delete>
+	
+	
+</mapper>

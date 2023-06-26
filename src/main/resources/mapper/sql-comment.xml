@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.mapper.CommentMapper">
+
+	<!-- 댓글목록 -->
+	<!-- <select id="selectCommentList" resultType="board.dto.CommentDto"> select 
+		comment_idx, comment_contents, comment_created_id, date_format(comment_created_dt, 
+		'%Y-%m-%d %H:%i:%s') as comment_created_dt from t_comment where comment_deleted_yn 
+		= 'N' order by comment_idx desc </select> -->
+
+<!-- 특정 게시물의 댓글 목록을 조회 -->
+	<select id="selectCommentList" parameterType="int" resultType="project.dto.CommentDto">
+		select *
+		FROM t_comment
+		WHERE board_Idx = #{boardIdx}
+		  AND comment_deleted_yn = 'N'
+	</select>
+
+
+<!-- 댓글 작성 -->
+	<insert id="insertComment" parameterType="project.dto.CommentDto">
+		insert into t_comment
+			(comment_contents, comment_created_dt, comment_created_id, board_idx)
+		values (#{commentContents}, now(), #{commentCreatedId} , #{boardIdx} )
+	</insert>
+
+<!-- 댓글조회 -->
+	<select id="selectCommentDetail" parameterType="int"
+		resultType="project.dto.CommentDto">
+		select comment_idx, comment_contents,
+		date_format(comment_created_dt, '%Y-%m-%d') as
+		comment_created_dt,
+		comment_created_id
+		from t_comment
+		where comment_deleted_yn = 'N' and comment_idx = #{commentIdx}
+	</select>
+
+<!-- 수정, 삭제 기능 -->
+	<update id="updateComment" parameterType="project.dto.CommentDto">
+		update t_comment
+		set comment_contents = #{commentContents},
+		comment_updated_dt = now(),
+		comment_created_id = #{commentCreatedId} 
+		where comment_idx = #{commentIdx}
+	</update>
+
+	<update id="deleteComment" parameterType="int">
+		update t_comment
+		set comment_deleted_yn = 'Y'
+		where comment_idx = #{commentIdx}
+	</update>
+
+
+</mapper>

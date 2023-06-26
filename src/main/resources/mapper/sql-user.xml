@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.mapper.UserMapper">
+
+	<!-- 로그인 기능 -->
+	<select id="login" parameterType="project.dto.UserDto" resultType="project.dto.UserDto">
+		select user_idx, user_id, user_password, user_name, user_email, 
+		  from t_user 
+		 where user_id = #{userId} and user_password = #{userPassword}
+	</select>
+	
+	<!-- UserId로 select -->
+	<select id="selectUserByUserId" parameterType="String" resultType="project.dto.UserDto">
+		select user_idx, user_id, user_password, user_name, user_email, cash, mileage 
+		  from t_user
+		 where user_id = #{userId}		 
+	</select>
+	
+	<!-- UserIdx로 select -->	
+	<select id="selectUserByUserIdx" parameterType="int" resultType="project.dto.UserDto">
+		select user_idx, user_id, user_password, user_name, user_email, cash, mileage 				 
+		  from t_user          
+		 where user_idx = #{userIdx}		
+		 order by user_idx desc;
+	</select>
+	 
+	
+	<!-- 유저 정보 수정 -->
+	<update id="updateUser" parameterType="project.dto.UserDto">
+		update t_user
+		set user_id = #{userId},
+			user_name = #{userName},
+			user_email = #{userEmail}
+			where user_idx=#{userIdx}		
+	</update>
+	
+	<!-- 유저 등록 -->
+	<insert id="registUser" parameterType="project.dto.UserDto">
+		insert into t_user (user_id, user_password, user_name, user_email, cash)
+		values (#{userId}, #{userPassword}, #{userName}, #{userEmail}, #{cash})
+	</insert>	
+	
+	<!-- 유저 목록 -->
+	<select id="selectUserList" parameterType="int" resultType="project.dto.UserDto">
+		select user_idx, user_id,user_name, user_email, cash, mileage 				 
+		  from t_user		
+		 order by user_idx desc;
+	</select>
+	
+	<!-- 캐시 정보 수정 -->
+	<update id="adminCash" parameterType="project.dto.UserDto">
+		update t_user
+		set cash = #{cash}
+			where user_idx=#{userIdx}		
+	</update>
+		
+</mapper>

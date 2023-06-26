@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.mapper.ShopMapper">
+
+	<!-- 물품 목록 -->
+	<select id="selectShopList" parameterType="int" resultType="project.dto.ShopDto">
+		select shop_idx, shop_name, shop_contents, shop_image, shop_price, shop_count, 
+				s.shop_category_idx, c.shop_category_name		 
+		  from t_shop s, t_shop_category c
+		  where s.shop_category_idx = c.shop_category_idx		
+		 order by shop_idx desc;
+	</select>
+	
+	<!-- shopIdx로 select -->	
+	<select id="selectShopByShopIdx" parameterType="int" resultType="project.dto.ShopDto">
+		select shop_idx, shop_name, shop_contents, shop_image, shop_price, shop_count, s.shop_category_idx, c.shop_category_name		 
+		 from t_shop s, t_shop_category c
+		 where s.shop_category_idx = c.shop_category_idx         
+		 and shop_idx = #{shopIdx}		
+		 order by shop_idx desc;
+	</select>	 
+	
+	<!-- 물품 정보 수정 -->
+	<update id="updateShop" parameterType="project.dto.ShopDto">
+		update t_shop
+			set shop_name    		= #{shopName},
+				shop_contents 		= #{shopContents},
+			    shop_image   		= #{shopImage},
+				shop_price   		= #{shopPrice},
+				shop_count   		= #{shopCount},			
+				shop_category_idx 	= #{shopCategoryIdx},
+		  where shop_idx            = #{shopIdx}		
+	</update>
+	
+	<!--물품 등록 -->
+	<insert id="registShop" parameterType="project.dto.ShopDto" useGeneratedKeys="true" keyProperty="shopIdx">
+		insert into t_shop (shop_idx, shop_name, shop_contents, shop_image, shop_price, shop_count, shop_category_idx)
+		values (#{shopIdx}, #{shopName}, #{shopContents}, #{shopImage}, #{shopPrice}, #{shopCount}, #{shopCategoryIdx})
+	</insert>
+	
+	<!-- 물품 삭제 -->
+	<delete id="deleteShop" parameterType="project.dto.ShopDto">
+		delete from t_shop
+		where shop_idx = #{shopIdx}
+	</delete>
+	
+	<!-- 카테고리 조회 -->		
+	<select id="selectShopCategory" parameterType="int" resultType="project.dto.ShopDto">
+		select shop_category_idx, shop_category_name
+		from t_shop_category
+		order by shop_category_idx desc
+	</select>
+		
+</mapper>
